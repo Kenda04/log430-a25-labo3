@@ -39,3 +39,7 @@ jobs:
 
       - name: Déploiement Docker
         run: docker compose --profile all up -d --build --remove-orphans --wait
+
+      - name: Afficher les logs du conteneur store_manager
+        if: failure()
+        run: docker logs log430-a25-labo3-store_manager-1 || true
