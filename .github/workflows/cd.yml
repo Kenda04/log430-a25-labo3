@@ -33,5 +33,9 @@ jobs:
       - name: Checkout dépot
         uses: actions/checkout@v4
 
+      - name: Create Docker network
+        run: |
+          docker network inspect labo03-network >/dev/null 2>&1 || docker network create --driver bridge labo03-network
+
       - name: Déploiement Docker
         run: docker compose --profile all up -d --build --remove-orphans --wait

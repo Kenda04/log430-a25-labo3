@@ -39,6 +39,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Create Docker network
+        run: |
+          docker network inspect labo03-network >/dev/null 2>&1 || docker network create --driver bridge labo03-network
+
       - name: Démarrer les services de base de données
         run: |
           docker compose --profile db up -d --wait
