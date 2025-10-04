@@ -107,11 +107,11 @@ def update_stock_redis(order_items, operation):
                 )
             pipeline.execute()
         else:
-            _populate_redis_from_mysql(r)
+            populate_redis_from_mysql(r)
     finally:
         session.close()
 
-def _populate_redis_from_mysql(redis_conn):
+def populate_redis_from_mysql(redis_conn):
     """ Helper function to populate Redis from MySQL stocks table """
     session = get_sqlalchemy_session()
     try:

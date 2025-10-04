@@ -7,7 +7,7 @@ import os
 import time
 import mysql.connector
 
-from stocks.commands.write_stock import _populate_redis_from_mysql
+from stocks.commands.write_stock import populate_redis_from_mysql
 from db import get_redis_conn, get_mysql_conn
 
 
@@ -38,7 +38,7 @@ def sync_redis_with_mysql():
     try:
         r = get_redis_conn()
         r.flushdb()
-        _populate_redis_from_mysql(r)
+        populate_redis_from_mysql(r)
         print("Redis sync done")
     except Exception as e:
         print(f"Error: {e}")
