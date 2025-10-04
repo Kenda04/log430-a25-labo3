@@ -1,5 +1,6 @@
 name: CD
 env:
+  PYTHONUNBUFFERED: 1
   PYTHONPATH: src
   DB_HOST: mysql
   DB_PORT: 3306
