@@ -1,4 +1,15 @@
 name: CI
+env:
+  PYTHONPATH: src
+  DB_HOST: localhost
+  DB_PORT: 3306
+  DB_NAME: labo03_db
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASS: ${{ secrets.DB_PASS }}
+  MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+  REDIS_HOST: localhost
+  REDIS_PORT: 6379
+  REDIS_DB: 0
 
 on:
   push:
@@ -7,29 +18,32 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Nettoyer le workspace
+        run: |
+          sudo rm -rf ${{ github.workspace }}/* || true
+          sudo rm -rf ${{ github.workspace }}/.* || true
+        continue-on-error: true
+
+      - name: Checkout dépot
+        uses: actions/checkout@v4
+
+      - name: Installer Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Install dependencies
+
+      - name: Installer les dépendances
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Creer fichier .env
+      - name: Démarrer les services de base de données
         run: |
-          echo "DB_HOST=127.0.0.1" >> .env
-          echo "DB_PORT=3306" >> .env
-          echo "DB_NAME=labo03_db" >> .env
-          echo "DB_USER=labo03" >> .env
-          echo "DB_PASS=labo03" >> .env
-          echo "REDIS_HOST=127.0.0.1" >> .env
-          echo "REDIS_PORT=6379" >> .env
-          echo "REDIS_DB=0" >> .env
+          docker compose --profile db up -d --wait
 
-      - name: Run tests
+      - name: Exécuter les tests
         working-directory: src
-        run: echo "Call pytest command here!"
+        run: |
+          python -m pytest

@@ -15,8 +15,10 @@ class Query(ObjectType):
         if product_data:
             return Product(
                 id=id,
-                name=f"Product {id}",
-                quantity=int(product_data['quantity'])
+                name=product_data['name'],
+                quantity=int(product_data['quantity']),
+                sku=product_data['sku'],
+                price=float(product_data['price']),
             )
         return None
     

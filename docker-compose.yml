@@ -1,5 +1,6 @@
 services:
   store_manager:
+    profiles: ["app", "all"]
     build: .
     environment:
       - PYTHONUNBUFFERED=1
@@ -14,28 +15,40 @@ services:
       - redis
 
   mysql:
+    profiles: ["db", "all"]
     image: mysql:8
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: labo03_db
-      MYSQL_USER: labo03
-      MYSQL_PASSWORD: labo03
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     networks:
       - labo03-network
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./db-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
 
   redis:
+    profiles: ["db", "all"]
     image: redis:7
     restart: unless-stopped
     networks:
       - labo03-network
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT}:6379"
+    healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 2s
+        timeout: 3s
+        retries: 10
 
 networks:
   labo03-network:

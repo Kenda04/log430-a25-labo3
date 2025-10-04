@@ -1,0 +1,37 @@
+name: CD
+env:
+  PYTHONPATH: src
+  DB_HOST: mysql
+  DB_PORT: 3306
+  DB_NAME: labo03_db
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASS: ${{ secrets.DB_PASS }}
+  MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_DB: 0
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [ main, master ]
+    types: [ completed ]
+
+jobs:
+  deploy:
+    if: |
+      github.event.workflow_run.conclusion == 'success' && 
+      github.event.workflow_run.event == 'push'
+    runs-on: self-hosted
+    steps:
+      - name: Nettoyer le workspace
+        run: |
+          sudo rm -rf ${{ github.workspace }}/* || true
+          sudo rm -rf ${{ github.workspace }}/.* || true
+        continue-on-error: true
+
+      - name: Checkout dépot
+        uses: actions/checkout@v4
+
+      - name: Déploiement Docker
+        run: docker compose --profile all up -d --build --remove-orphans --wait
